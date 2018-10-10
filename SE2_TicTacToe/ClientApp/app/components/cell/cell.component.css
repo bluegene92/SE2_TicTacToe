@@ -10,11 +10,11 @@
     align-items: center;
 }
 
-    .cell:hover {
-        cursor: pointer;
-        background-color: #00A3AF;
-    }
+.cell:hover {
+    cursor: pointer;
+    background-color: #00A3AF;
+}
 
-    .coordinate {
-        font-size: 0.8em;
-    }
+.coordinate {
+    font-size: 0.8em;
+}
