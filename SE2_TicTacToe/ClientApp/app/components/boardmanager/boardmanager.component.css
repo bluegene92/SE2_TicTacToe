@@ -1,0 +1,63 @@
+﻿.gameStatus {
+    margin: 0px;
+    padding: 15px;
+    background-color: #112F41;
+    color: #fff;
+    font-size: 1em;
+}
+
+.board_menu {
+    background-color: #112F41;
+    margin: 0px;
+    padding: 15px;
+    font-size: 1.4em;
+    font-weight: bold;
+    display: block;
+}
+
+.board_menu label {
+    color: #fff;
+    width: 100px;
+}
+
+.board_menu label input {
+    width: 20px;
+    color: #43676B;
+}
+
+input[type="text"] {
+    text-align: center;
+    background: #112F41;
+    border: none;
+    color: #fff;
+    border-bottom: 1px solid #fff;
+}
+
+.winning-condition-table th {
+    padding: 20px 40px;
+}
+
+.winning-condition-table table {
+    float: left;
+}
+
+.winning-condition-table table td {
+    text-align: center;
+}
+
+.new-game {
+    background-color: #112F41;
+    color: #fff;
+    border: 0px;
+    font-family: 'Dosis', Helvetica, sans-serif;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 0px;
+    padding: 15px;
+    width: 100%;
+}
+
+.new-game:hover {
+    background-color: #c1cdcd;
+    cursor: pointer;
+}

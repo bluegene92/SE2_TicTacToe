@@ -1,0 +1,14 @@
+﻿<div>
+    <div class="board_table">
+        <div class="board" 
+             *ngFor="let row of heightArray">
+
+            <cell *ngFor="let col of widthArray"
+                  [state]='cells[row * width + col]'
+                  [coordinate]="cellsCoordinates[row * width + col]"
+                  (click)="handleMove(row* width + col)">
+            </cell>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+﻿<div>
+    <div class="gameStatus">
+
+        <div class="row">
+            <p class="boardStatus col-sm-6">
+
+                <b>Board Status</b>                     <br />
+                width:          {{width}}                   <br />
+                height          {{height}}                  <br />
+                totalCells:     {{totalCells}}              <br />
+                boardShape:     {{referee.boardShape}}      <br />
+                smallSide:      {{referee.smallSide}}       <br />
+                largeSide:      {{referee.largeSide}}       <br />
+
+            </p>
+
+            <p class="playerStatus col-sm-6">
+
+                <b>Player Status</b>                        <br />
+                Player1:        {{player1}}                 <br />
+                Player2:        {{player2}}                 <br />
+                <br />
+
+                Player's Turn:  {{playerTurn}}              <br />
+                winner:         {{winner}}                  <br />
+
+            </p>
+        </div>
+    </div>
+
+    <div class="board_menu">
+
+        <div class="form-group">
+            <div>
+                <label>width:</label>
+                <input [(ngModel)]="width"
+                       placeholder="{{width}}"
+                       (input)="onChangeBoardWidth($event.target.value)"
+                       type="text"
+                       maxlength="2"
+                       size="1">
+            </div>
+            <div>
+                <label>height:</label>
+                <input [(ngModel)]="height"
+                       placeholder="{{height}}"
+                       (input)="onChangeBoardHeight($event.target.value)"
+                       type="text"
+                       maxlength="2"
+                       size="1" />
+            </div>
+        </div>
+    </div>
+
+    <!--The Board-->
+    <board [width]="width"
+           [height]="height"
+           (notifyCellSelectedPosition)='onNotifySelectedCellPosition($event)'>
+    </board>
+    <button class="new-game"
+            (click)="newGame()">
+        New Game
+    </button>
+
+    <div class="winning-condition-tables">
+        <div class="winning-condition-table">
+
+            <table class="row">
+                <tr>
+                    <th>Row</th>
+                </tr>
+                <tr *ngFor="let r of winningRowList">
+                    <td>{{r}}</td>
+                </tr>
+            </table>
+
+
+            <table class="column">
+                <tr>
+                    <th>  Column</th>
+                </tr>
+                <tr *ngFor="let c of winningColumnList">
+                    <td>{{c}}</td>
+                </tr>
+            </table>
+
+
+            <table class="diagDown">
+                <tr>
+                    <th>Diag\</th>
+                </tr>
+                <tr *ngFor="let dd of winningDiagonalDownList">
+                    <td>{{dd}}</td>
+                </tr>
+            </table>
+
+
+            <table class="DiagUp">
+                <tr>
+                    <th>Diag/</th>
+                </tr>
+                <tr *ngFor="let du of winningDiagonalUpList">
+                    <td>{{du}}</td>
+                </tr>
+            </table>
+
+
+        </div> <!--end winning-condition-table-->
+    </div> <!--end winning-condition-tables-->
+</div>
