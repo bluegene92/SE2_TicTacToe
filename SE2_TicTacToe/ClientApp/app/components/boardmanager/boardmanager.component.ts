@@ -19,7 +19,7 @@ export class BoardManagerComponent {
 
 	player1:	string = Player.X;
 	player2:	string = Player.O;
-	winner:		string = '';
+	winner:		string = Player.EMPTY;
 	playerTurn: string = Player.X;		// to be change later
 
 	winningRowList:						number[][] = []
