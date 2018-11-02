@@ -1,6 +1,7 @@
 ﻿import { Injectable, OnInit, Input } from '@angular/core';
 import { BoardShape, BoardDimension } from './../board/board.state';
 import { Player } from './../player/player.model';
+import { BoardComponent } from './../board/board.component';
 
 @Injectable()
 export class AlphaBetaPruning {
@@ -12,38 +13,35 @@ export class AlphaBetaPruning {
 	ngOnInit() {
 	}
 
-	runAlgorithm(board: string[], allWinningConditions: any[][]) {
+	runAlgorithm(board: BoardComponent, allWinningConditions: any[][]) {
 		this.allWinningConditions = allWinningConditions
 		this.findBestMove(board, Player.O, 0)
 		return this.bestPosition;
 	}
 
-	findBestMove(board: string[], player: string, depth: number) {
+	findBestMove(board: BoardComponent, player: string, depth: number) {
 		this.alphaBetaPruning(board, player, depth, Number.MIN_VALUE, Number.MAX_VALUE);
 	}
 
-	alphaBetaPruning(board: string[],
+	alphaBetaPruning(board: BoardComponent,
 					player: string,
 					depth: number,
 					alpha: number,
-		beta: number) {
+					beta: number) {
 
-		let availableCells = this.getAvailableCells(board);
 
-		if (this.checkWinner(Player.X)) {
-			return 10;
-		} else if (this.checkWinner(Player.O)) {
-			return -10;
-		} else if (this.boardIsEmpty(availableCells)) {
-			return 0;
-		}
+		let availableCells = board.getAvailableCells();
+
+		if (this.checkWinner(Player.X)) { return 10; }
+		else if (this.checkWinner(Player.O)) { return -10; }
+		else if (board.isEmpty()) {	return 0; }
 
 		if (player == Player.X) {
 			for (let i = 0; i < availableCells.length; i++) {
 				let availablePosition = availableCells[i];
 
 				//select a cell and update winning list
-				board[Number(availablePosition)] = Player.X;
+				board.selectCell(Number(availablePosition), Player.X)
 
 				// holds the list of indexes for undo later
 				let undoList: number[][] = []
@@ -62,7 +60,8 @@ export class AlphaBetaPruning {
 				let score: any = this.alphaBetaPruning(board, Player.O, depth+1, alpha, beta)
 
 				//undo move
-				board[Number(availablePosition)] = availablePosition
+				//board[Number(availablePosition)] = availablePosition
+				board.undoCell(Number(availablePosition), availablePosition)
 				for (let i = 0; i < undoList.length; i++) {
 					let u = undoList[i]
 					let yC = u[0]
@@ -86,7 +85,8 @@ export class AlphaBetaPruning {
 		} else {  // Player.O
 			for (let i = 0; i < availableCells.length; i++) {
 				let availablePosition = availableCells[i];
-				board[Number(availablePosition)] = Player.O;
+				//board[Number(availablePosition)] = Player.O;
+				board.selectCell(Number(availablePosition), Player.O)
 
 				// holds the list of indexes for undo later
 				let undoList: number[][] = []
@@ -104,7 +104,8 @@ export class AlphaBetaPruning {
 				let score: any = this.alphaBetaPruning(board, Player.X, depth + 1, alpha, beta)
 
 				//undo move
-				board[Number(availablePosition)] = availablePosition
+				//board[Number(availablePosition)] = availablePosition
+				board.undoCell(Number(availablePosition), availablePosition)
 				for (let i = 0; i < undoList.length; i++) {
 					let u = undoList[i]
 					let yC = u[0]
@@ -141,20 +142,5 @@ export class AlphaBetaPruning {
 			}
 		}
 		return win
-	}
-
-	boardIsEmpty(cells: any[]) {
-		return cells.length == 0;
-	}
-
-	getAvailableCells(cells: string[]) {
-		let availableCells: string[] = [];
-		for (let i = 0; i < cells.length; i++) {
-			// if the cell is a number, then it is available
-			if (!isNaN(Number(cells[i]))) {
-				availableCells.push(cells[i]);
-			}
-		}
-		return availableCells;
 	}
 }

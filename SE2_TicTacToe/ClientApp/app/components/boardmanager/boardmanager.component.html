@@ -12,6 +12,8 @@
                 smallSide:      {{referee.smallSide}}       <br />
                 largeSide:      {{referee.largeSide}}       <br />
                 gameMode:       {{gameMode}}                <br />
+                limitDepth:     {{limitDepth}}              <br />
+
             </p>
 
             <p class="playerStatus col-sm-6">
@@ -63,19 +65,28 @@
             <div class="game-mode col-sm-6">
                 <form>
                     <div>
+                        <label>Limit depth</label>
+                        <input type="checkbox"
+                               name="depth"
+                               value="HVA"
+                               [checked]="limitDepth"
+                               (click)="toggleLimitDepth()"
+                               [(ngModel)]="limitDepth"/>
+                    </div>
+                    <div>
                         <label>Human vs. AI</label>
-                        <input type="radio" 
+                        <input type="radio"
                                name="gameMode"
                                value="HVA"
                                [(ngModel)]="gameMode"
-                               checked="checked"/>
+                               checked="checked" />
                     </div>
                     <div>
                         <label>AI vs. AI</label>
-                        <input type="radio" 
+                        <input type="radio"
                                name="gameMode"
                                value="AVA"
-                               [(ngModel)]="gameMode"/>
+                               [(ngModel)]="gameMode" />
                     </div>
                 </form>
 
@@ -83,7 +94,7 @@
         </div>
 
     </div>
-    
+
 
 
     <!--The Board-->
@@ -135,4 +146,13 @@
             </div>
         </div>
     </div> <!--end winning-condition-tables-->
+
+    <!--<div class="winning-condition-tables row">
+        <div class="text-center">
+            <h4>All</h4>
+            <ul>
+                <li *ngFor="let aw of allWinningConditions">{{aw}}</li>
+            </ul>
+        </div>
+    </div>-->
 </div>

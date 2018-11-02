@@ -30,6 +30,17 @@ export class BoardComponent {
 		this.initializeBoard();
 	}
 
+	initializeBoard() {
+		this.cells = []
+		for (let i = 0; i < this.height; i++) {
+			for (let j = 0; j < this.width; j++) {
+				let v = this.labelCellPosition(j, i);
+				this.cellsCoordinates[v] = `${i},${j}`;
+				this.cells[v] = v.toString()
+			}
+		}
+	}
+
 	handleMove(position: number) {
 		this.selectCell(position, Player.X);
 		/**
@@ -37,33 +48,21 @@ export class BoardComponent {
 		 * being selected.
 		 */
 		this.notifyCellSelectedPosition.emit(position);
-		this.getAvailableCells();
 	}
 
 	selectCell(position: number, player: string) {
-		this.cells[position] = player	
+		this.cells[position] = player;	
 	}
 
-	getBoard() : string[] {
-		return this.cells;
-	}
-
-	initializeBoard() {
-		this.cells = []
-		for (let i = 0; i < this.height; i++) {
-			for (let j = 0; j < this.width; j++) {
-				let v = this.getCellPosition(j, i);
-				this.cellsCoordinates[v] = `r${i},c${j}`;
-				this.cells[v] = v.toString()
-			}
-		}
+	undoCell(position: number, value: string) {
+		this.cells[position] = value;
 	}
 
 	resetBoard() {
 		this.initializeBoard();
 	}
 
-	getCellPosition(xCoord: number, yCoord: number): number {
+	labelCellPosition(xCoord: number, yCoord: number): number {
 		return (yCoord * this.width) + xCoord;
 	}
 
@@ -71,14 +70,19 @@ export class BoardComponent {
 		return this.cellsCoordinates[position];
 	}
 
-	getAvailableCells() {
+	getAvailableCells(): string[] {
 		let availableCells: string[] = [];
-		for (let i = 0; i < this.cells.length; i++) {
+		for (let cell of this.cells) {
 			// if the cell is a number, then it is available
-			if (!isNaN(Number(this.cells[i]))) {
-				availableCells.push(this.cells[i]);
+			if (!isNaN(Number(cell))) {
+				availableCells.push(cell);
 			}
 		}
 		return availableCells;
+	}
+
+	isEmpty(): boolean {
+		let availableCells = this.getAvailableCells()
+		return (availableCells.length == 0) ? true : false
 	}
 }

@@ -1,4 +1,5 @@
 ﻿import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs';
 import { BoardComponent } from './../board/board.component';
 import { BoardConfigurator } from './boardconfigurator';
 import { Referee } from './../referee/referee.component';
@@ -14,11 +15,12 @@ import { Player } from './../player/player.model';
 	styleUrls: ['./boardmanager.component.css'],
 	providers: [BoardConfigurator, Referee, AlphaBetaPruning, WinningSetGenerator]
 })
-export class BoardManagerComponent {
+export class BoardManagerComponent implements OnInit {
 	@ViewChild(BoardComponent) board: any;
 
 	width:		number = BoardDimension.DEFAULT_WIDTH;
-	height:		number = BoardDimension.DEFAULT_HEIGHT;
+	height: number = BoardDimension.DEFAULT_HEIGHT;
+	timer: number = 20;
 	totalCells: number = this.width * this.height;
 
 	player1:	string = Player.X;
@@ -26,14 +28,18 @@ export class BoardManagerComponent {
 	winner:		string = Player.EMPTY;
 	playerTurn: string = Player.X;		// to be change later
 
-	winningRows:						any[][] = []
+	//time = new Observable(observer => {
+	//	setInterval(() => observer.next(new Date().toString()), 1000)
+	//})
+
+	winningRows:					any[][] = []
 	winningColumns:					any[][] = []
 	winningDiagonalDowns:			any[][] = []
 	winningDiagonalUps:				any[][] = []
 	allWinningConditions:			any[][] = []
 
 	gameMode: string = GameMode.HUMAN_VS_AI;
-	timer: number = 20;
+	limitDepth: boolean = false
 
 	boardConfigurator: BoardConfigurator
 	referee: Referee
@@ -113,19 +119,13 @@ export class BoardManagerComponent {
 
 	/**
 	 * This function runs everytime the user select a position.
-	 * Determine the gamde mode (HVA or AVA), and perform the
-	 * correct action.
+	 * It retrieve data from the event emitter
 	 *
 	 * @param position
 	 */
 	onNotifySelectedCellPosition(position: number) {
-		//console.log(`parent recieve position: ${position}`);
-		//console.log(`need ${this.referee.smallSide} in a row to win`);
-
-
 		if (this.gameMode == GameMode.HUMAN_VS_AI) {
-			//console.log("HVA");
-			this.board.cells[position] = Player.X;
+			this.board.selectCell(position, Player.X);
 			for (let winSet of this.allWinningConditions) {
 				for (let i = 0; i < winSet.length; i++) {
 					if (winSet[i] == position) {
@@ -133,12 +133,15 @@ export class BoardManagerComponent {
 					}
 				} 
 			}
-			let bestMove = this.alphabeta.runAlgorithm(this.board.cells, this.allWinningConditions);
-			this.board.cells[bestMove] = Player.O
-			console.log(`bestMove=${bestMove}`);
+			let bestMovePosition = this.alphabeta
+				.runAlgorithm(this.board, this.allWinningConditions);
+
+			this.board.selectCell(bestMovePosition, Player.O)
+
+			console.log(`bestMove=${bestMovePosition}`);
 			for (let winSet of this.allWinningConditions) {
 				for (let i = 0; i < winSet.length; i++) {
-					if (winSet[i] == bestMove) {
+					if (winSet[i] == bestMovePosition) {
 						winSet[i] = Player.O;
 					}
 				}
@@ -146,8 +149,11 @@ export class BoardManagerComponent {
 		}
 
 		if (this.gameMode == GameMode.AI_VS_AI) {
-			//console.log("AVA");
+
+
 		}
+
+		//console.log(this.allWinningConditions)
 	}
 
 	checkWinner(winSet: any[], player: string) {
@@ -156,5 +162,9 @@ export class BoardManagerComponent {
 			if (winSet[i] !== player) win = false
 		}
 		return win ? player : ""
+	}
+
+	toggleLimitDepth() {
+		this.limitDepth = (this.limitDepth) ? false: true
 	}
 }
