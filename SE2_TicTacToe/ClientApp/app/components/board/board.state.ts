@@ -13,14 +13,7 @@ class BoardShape {
 	static SHAPE_LANDSCAPE = "LANDSCAPE"
 }
 
-class Player {
-	static X = "X"
-	static O = "O"
-	static EMPTY = ""
-}
-
 export {
 	BoardDimension,
-	BoardShape,
-	Player
+	BoardShape
 }

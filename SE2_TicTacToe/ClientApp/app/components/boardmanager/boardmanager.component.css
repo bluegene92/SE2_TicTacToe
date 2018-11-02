@@ -25,6 +25,10 @@
     color: #43676B;
 }
 
+.board_menu .game-mode label {
+    width: 200px;
+}
+
 input[type="text"] {
     text-align: center;
     background: #112F41;
@@ -33,16 +37,8 @@ input[type="text"] {
     border-bottom: 1px solid #fff;
 }
 
-.winning-condition-table th {
-    padding: 20px 40px;
-}
-
-.winning-condition-table table {
-    float: left;
-}
-
-.winning-condition-table table td {
-    text-align: center;
+.winning-condition-tables{
+    margin-bottom: 100px;
 }
 
 .new-game {

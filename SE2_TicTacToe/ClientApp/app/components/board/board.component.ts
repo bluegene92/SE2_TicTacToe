@@ -1,7 +1,8 @@
 ﻿import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BoardConfigurator } from './../boardmanager/boardconfigurator';
-import { Referee } from './../referee/referee.class';
-import { BoardShape, BoardDimension, Player } from './../board/boardstate';
+import { Referee } from './../referee/referee.component';
+import { BoardShape, BoardDimension } from './../board/board.state';
+import { Player } from './../player/player.model';
 
 @Component({
 	selector: 'board',
@@ -26,34 +27,40 @@ export class BoardComponent {
 	constructor() { }
 
 	ngOnInit() {
-		this.setBoardCellValue();
+		this.initializeBoard();
 	}
 
 	handleMove(position: number) {
-		this.cells[position] = Player.X;				// to be change later
-		//console.log(position)
-		//console.log(this.cellsCoordinates[position]);	// contains (row, col) value
-
+		this.selectCell(position, Player.X);
 		/**
 		 * notify the parent (BoardManager) of the position
 		 * being selected.
 		 */
 		this.notifyCellSelectedPosition.emit(position);
+		this.getAvailableCells();
 	}
 
-	setBoardCellValue() {
+	selectCell(position: number, player: string) {
+		this.cells[position] = player	
+	}
+
+	getBoard() : string[] {
+		return this.cells;
+	}
+
+	initializeBoard() {
 		this.cells = []
 		for (let i = 0; i < this.height; i++) {
 			for (let j = 0; j < this.width; j++) {
 				let v = this.getCellPosition(j, i);
 				this.cellsCoordinates[v] = `r${i},c${j}`;
-				this.cells[v] = v
+				this.cells[v] = v.toString()
 			}
 		}
 	}
 
 	resetBoard() {
-		this.setBoardCellValue();
+		this.initializeBoard();
 	}
 
 	getCellPosition(xCoord: number, yCoord: number): number {
@@ -62,5 +69,16 @@ export class BoardComponent {
 
 	getCoordinates(position: number): any {
 		return this.cellsCoordinates[position];
+	}
+
+	getAvailableCells() {
+		let availableCells: string[] = [];
+		for (let i = 0; i < this.cells.length; i++) {
+			// if the cell is a number, then it is available
+			if (!isNaN(Number(this.cells[i]))) {
+				availableCells.push(this.cells[i]);
+			}
+		}
+		return availableCells;
 	}
 }

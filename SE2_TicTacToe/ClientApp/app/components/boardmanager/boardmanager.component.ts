@@ -1,14 +1,18 @@
 ﻿import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { BoardComponent } from './../board/board.component';
 import { BoardConfigurator } from './boardconfigurator';
-import { Referee } from './../referee/referee.class';
-import { BoardDimension, Player } from './../board/boardstate';
+import { Referee } from './../referee/referee.component';
+import { BoardDimension } from './../board/board.state';
+import { GameMode } from './../gamemanager/gamemode.state';
+import { AlphaBetaPruning } from './../ai/alphabeta';
+import { WinningSetGenerator } from './../referee/winning-set-generator.service';
+import { Player } from './../player/player.model';
 
 @Component({
 	selector: 'board-manager',
 	templateUrl: './boardmanager.component.html',
 	styleUrls: ['./boardmanager.component.css'],
-	providers: [BoardConfigurator, Referee]
+	providers: [BoardConfigurator, Referee, AlphaBetaPruning, WinningSetGenerator]
 })
 export class BoardManagerComponent {
 	@ViewChild(BoardComponent) board: any;
@@ -22,20 +26,25 @@ export class BoardManagerComponent {
 	winner:		string = Player.EMPTY;
 	playerTurn: string = Player.X;		// to be change later
 
-	winningRowList:						number[][] = []
-	winningColumnList:					number[][] = []
-	winningDiagonalDownList:			number[][] = []
-	winningDiagonalUpList:				number[][] = []
-	allWinningConditionList:			number[][] = []
-	allOpponentWinningConditionList:	number[][] = []
+	winningRows:						any[][] = []
+	winningColumns:					any[][] = []
+	winningDiagonalDowns:			any[][] = []
+	winningDiagonalUps:				any[][] = []
+	allWinningConditions:			any[][] = []
+
+	gameMode: string = GameMode.HUMAN_VS_AI;
+	timer: number = 20;
 
 	boardConfigurator: BoardConfigurator
 	referee: Referee
+	alphabeta: AlphaBetaPruning
 
 	constructor(boardConfigurator: BoardConfigurator,
-		referee: Referee) {
+		referee: Referee,
+		alphabeta: AlphaBetaPruning) {
 		this.boardConfigurator = boardConfigurator
 		this.referee = referee
+		this.alphabeta = alphabeta
 	}
 
 	ngOnInit() {
@@ -64,7 +73,7 @@ export class BoardManagerComponent {
 		this.updateBoardDimension()
 		this.board.widthArray =
 			this.boardConfigurator.changeBoardWidth(width)
-		this.board.setBoardCellValue()
+		this.board.initializeBoard()
 	}
 
 	onChangeBoardHeight(height: number) {
@@ -72,7 +81,7 @@ export class BoardManagerComponent {
 		this.updateBoardDimension()
 		this.board.heightArray =
 			this.boardConfigurator.changeBoardHeight(height)
-		this.board.setBoardCellValue()
+		this.board.initializeBoard()
 	}
 
 	updateBoardDimension() {
@@ -80,48 +89,74 @@ export class BoardManagerComponent {
 		this.board.height = this.height;
 		this.winner = Player.EMPTY;
 		this.referee.updateBoardDimension(this.width, this.height);
-		this.referee.generateWinningConditionList();
-		this.getWinningConditionList();
+		this.referee.createAllWinningRow();
+		this.getWinningConditions();
 	}
 
-	getWinningConditionList() {
-		this.winningColumnList = this.referee.winningColumnList
-		this.winningRowList = this.referee.winningRowList
-		this.winningDiagonalDownList = this.referee.winningDiagonalDownlList
-		this.winningDiagonalUpList = this.referee.winningDiagonalUpList
-		this.combineWinningConditionList()
+	getWinningConditions() {
+		this.winningColumns = this.referee.winningColumnList
+		this.winningRows = this.referee.winningRowList
+		this.winningDiagonalDowns = this.referee.winningDiagonalDownlList
+		this.winningDiagonalUps = this.referee.winningDiagonalUpList
+		this.combineWinningConditions()
 	}
 
-	combineWinningConditionList() {
-		this.allWinningConditionList = []
-		this.allWinningConditionList =
-			this.winningRowList
-				.concat(this.winningColumnList)
-				.concat(this.winningDiagonalDownList)
-				.concat(this.winningDiagonalUpList)
+	combineWinningConditions() {
+		this.allWinningConditions = []
+		this.allWinningConditions =
+			this.winningRows
+				.concat(this.winningColumns)
+				.concat(this.winningDiagonalDowns)
+				.concat(this.winningDiagonalUps)
 	}
 
+
+	/**
+	 * This function runs everytime the user select a position.
+	 * Determine the gamde mode (HVA or AVA), and perform the
+	 * correct action.
+	 *
+	 * @param position
+	 */
 	onNotifySelectedCellPosition(position: number) {
 		//console.log(`parent recieve position: ${position}`);
 		//console.log(`need ${this.referee.smallSide} in a row to win`);
-		for (let winSet of this.allWinningConditionList) {
-			for (let i = 0; i < this.referee.smallSide; i++) {
-				if (winSet[i] == position) {
-					const index: number = winSet.indexOf(position);
-					if (index !== -1) { winSet.splice(index, 1); }
-					if (this.winSetIsEmpty(winSet)) {
-						this.setWinner();
+
+
+		if (this.gameMode == GameMode.HUMAN_VS_AI) {
+			//console.log("HVA");
+			this.board.cells[position] = Player.X;
+			for (let winSet of this.allWinningConditions) {
+				for (let i = 0; i < winSet.length; i++) {
+					if (winSet[i] == position) {
+						winSet[i] = Player.X;
+					}
+				} 
+			}
+			let bestMove = this.alphabeta.runAlgorithm(this.board.cells, this.allWinningConditions);
+			this.board.cells[bestMove] = Player.O
+			console.log(`bestMove=${bestMove}`);
+			for (let winSet of this.allWinningConditions) {
+				for (let i = 0; i < winSet.length; i++) {
+					if (winSet[i] == bestMove) {
+						winSet[i] = Player.O;
 					}
 				}
 			}
 		}
+
+
+
+		if (this.gameMode == GameMode.AI_VS_AI) {
+			//console.log("AVA");
+		}
 	}
 
-	winSetIsEmpty(winSet: number[]): boolean {
-		return (winSet == undefined || winSet.length == 0) ? true : false;
-	}
-
-	setWinner() {
-		this.winner = this.playerTurn;
+	checkWinner(winSet: any[], player: string) {
+		let win = true
+		for (let i = 0; i < winSet.length; i++) {
+			if (winSet[i] !== player) win = false
+		}
+		return win ? player : ""
 	}
 }

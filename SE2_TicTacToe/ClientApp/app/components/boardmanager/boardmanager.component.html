@@ -4,14 +4,14 @@
         <div class="row">
             <p class="boardStatus col-sm-6">
 
-                <b>Board Status</b>                     <br />
+                <b>Board Status</b>                         <br />
                 width:          {{width}}                   <br />
                 height          {{height}}                  <br />
                 totalCells:     {{totalCells}}              <br />
                 boardShape:     {{referee.boardShape}}      <br />
                 smallSide:      {{referee.smallSide}}       <br />
                 largeSide:      {{referee.largeSide}}       <br />
-
+                gameMode:       {{gameMode}}                <br />
             </p>
 
             <p class="playerStatus col-sm-6">
@@ -30,81 +30,109 @@
 
     <div class="board_menu">
 
-        <div class="form-group">
-            <div>
-                <label>width:</label>
-                <input [(ngModel)]="width"
-                       placeholder="{{width}}"
-                       (input)="onChangeBoardWidth($event.target.value)"
-                       type="text"
-                       maxlength="2"
-                       size="1">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <div>
+                    <label>width:</label>
+                    <input [(ngModel)]="width"
+                           placeholder="{{width}}"
+                           (input)="onChangeBoardWidth($event.target.value)"
+                           type="text"
+                           maxlength="2"
+                           size="1">
+                </div>
+                <div>
+                    <label>height:</label>
+                    <input [(ngModel)]="height"
+                           placeholder="{{height}}"
+                           (input)="onChangeBoardHeight($event.target.value)"
+                           type="text"
+                           maxlength="2"
+                           size="1" />
+                </div>
+                <div>
+                    <label>Timer (sec):</label>
+                    <input [(ngModel)]="timer"
+                           placeholder="{{timer}}"
+                           type="text"
+                           maxlength="2"
+                           size="1" />
+                </div>
             </div>
-            <div>
-                <label>height:</label>
-                <input [(ngModel)]="height"
-                       placeholder="{{height}}"
-                       (input)="onChangeBoardHeight($event.target.value)"
-                       type="text"
-                       maxlength="2"
-                       size="1" />
+
+            <div class="game-mode col-sm-6">
+                <form>
+                    <div>
+                        <label>Human vs. AI</label>
+                        <input type="radio" 
+                               name="gameMode"
+                               value="HVA"
+                               [(ngModel)]="gameMode"
+                               checked="checked"/>
+                    </div>
+                    <div>
+                        <label>AI vs. AI</label>
+                        <input type="radio" 
+                               name="gameMode"
+                               value="AVA"
+                               [(ngModel)]="gameMode"/>
+                    </div>
+                </form>
+
             </div>
         </div>
+
     </div>
+    
+
 
     <!--The Board-->
     <board [width]="width"
            [height]="height"
            (notifyCellSelectedPosition)='onNotifySelectedCellPosition($event)'>
     </board>
+
     <button class="new-game"
             (click)="newGame()">
         New Game
     </button>
 
-    <div class="winning-condition-tables">
-        <div class="winning-condition-table">
+    <div class="winning-condition-tables row">
 
-            <table class="row">
-                <tr>
-                    <th>Row</th>
-                </tr>
-                <tr *ngFor="let r of winningRowList">
-                    <td>{{r}}</td>
-                </tr>
-            </table>
+        <div class="col-sm-3">
+            <div class="text-center">
+                <h4>Row</h4>
+                <ul>
+                    <li *ngFor="let r of winningRows">{{r}}</li>
+                </ul>
+            </div>
+        </div>
 
+        <div class="col-sm-3">
+            <div class="text-center">
+                <h4>Column</h4>
+                <ul>
+                    <li *ngFor="let c of winningColumns">{{c}}</li>
+                </ul>
+            </div>
+        </div>
 
-            <table class="column">
-                <tr>
-                    <th>  Column</th>
-                </tr>
-                <tr *ngFor="let c of winningColumnList">
-                    <td>{{c}}</td>
-                </tr>
-            </table>
+        <div class="col-sm-3">
+            <div class="text-center">
+                <h4>Diag\</h4>
+                <ul>
+                    <li *ngFor="let dd of winningDiagonalDowns">{{dd}}</li>
+                </ul>
+            </div>
+        </div>
 
-
-            <table class="diagDown">
-                <tr>
-                    <th>Diag\</th>
-                </tr>
-                <tr *ngFor="let dd of winningDiagonalDownList">
-                    <td>{{dd}}</td>
-                </tr>
-            </table>
-
-
-            <table class="DiagUp">
-                <tr>
-                    <th>Diag/</th>
-                </tr>
-                <tr *ngFor="let du of winningDiagonalUpList">
-                    <td>{{du}}</td>
-                </tr>
-            </table>
-
-
-        </div> <!--end winning-condition-table-->
+        <div class="col-sm-3">
+            <div class="text-center">
+                <h4>Diag\</h4>
+                <ul>
+                    <li *ngFor="let du of winningDiagonalUps">{{du}}</li>
+                </ul>
+            </div>
+        </div>
     </div> <!--end winning-condition-tables-->
 </div>
