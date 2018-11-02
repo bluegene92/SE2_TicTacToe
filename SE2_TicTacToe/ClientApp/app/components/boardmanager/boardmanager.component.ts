@@ -145,8 +145,6 @@ export class BoardManagerComponent {
 			}
 		}
 
-
-
 		if (this.gameMode == GameMode.AI_VS_AI) {
 			//console.log("AVA");
 		}
