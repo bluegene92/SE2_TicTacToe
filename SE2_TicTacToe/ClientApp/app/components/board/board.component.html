@@ -2,7 +2,6 @@
     <div class="board_table">
         <div class="board" 
              *ngFor="let row of heightArray">
-
             <cell [class.enabled]="enableBoard"
                   *ngFor="let col of widthArray"
                   [state]='cells[row * width + col]'
