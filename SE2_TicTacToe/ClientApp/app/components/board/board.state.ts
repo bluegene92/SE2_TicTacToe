@@ -13,7 +13,12 @@ class BoardShape {
 	static SHAPE_LANDSCAPE = "LANDSCAPE"
 }
 
+class RESULT {
+	static DRAW = "DRAW"
+}
+
 export {
 	BoardDimension,
-	BoardShape
+	BoardShape,
+	RESULT
 }

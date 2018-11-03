@@ -2,17 +2,12 @@
     width: 100px;
     height: 100px;
     box-sizing: border-box;
-    border: 5px solid #f4af78;
+    border: 5px solid #0B476D;
     font-size: 2em;
     font-family: 'Gochi Hand', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.cell:hover {
-    cursor: pointer;
-    background-color: #00A3AF;
 }
 
 .coordinate {

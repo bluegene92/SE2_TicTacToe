@@ -16,6 +16,8 @@ export class BoardComponent {
 	heightArray:		number[] = [];
 	@Input() width:		number = BoardDimension.DEFAULT_WIDTH;
 	@Input() height:	number = BoardDimension.DEFAULT_HEIGHT;
+	@Input() enableBoard:	boolean = false;
+
 	@Output() notifyCellSelectedPosition: EventEmitter<number> =
 						new EventEmitter<number>(); 
 
@@ -42,12 +44,14 @@ export class BoardComponent {
 	}
 
 	handleMove(position: number) {
-		this.selectCell(position, Player.X);
-		/**
-		 * notify the parent (BoardManager) of the position
-		 * being selected.
-		 */
-		this.notifyCellSelectedPosition.emit(position);
+		if (this.enableBoard) {
+			this.selectCell(position, Player.X);
+			/**
+			 * notify the parent (BoardManager) of the position
+			 * being selected.
+			 */
+			this.notifyCellSelectedPosition.emit(position);
+		}
 	}
 
 	selectCell(position: number, player: string) {

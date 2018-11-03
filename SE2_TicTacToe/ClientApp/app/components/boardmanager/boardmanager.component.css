@@ -54,6 +54,23 @@ input[type="text"] {
 }
 
 .new-game:hover {
-    background-color: #c1cdcd;
+    background-color: #236287;
+    cursor: pointer;
+}
+
+.start-game {
+    background-color: #448F3B;
+    color: #fff;
+    border: 0px;
+    font-family: 'Dosis', Helvetica, sans-serif;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 0px;
+    padding: 15px;
+    width: 100%;
+}
+
+.start-game:hover {
+    background-color: #59BD4D;
     cursor: pointer;
 }

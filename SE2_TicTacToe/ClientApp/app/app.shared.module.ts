@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
+import { CountdownModule } from 'ngx-countdown';
 
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
@@ -26,6 +27,7 @@ import { BoardConfigurator } from './components/boardmanager/boardconfigurator';
 		CommonModule,
 		HttpModule,
 		FormsModule,
+		CountdownModule,
 		RouterModule.forRoot([
 			{ path: '', redirectTo: 'home', pathMatch: 'full' },
 			{ path: 'home', component: HomeComponent },

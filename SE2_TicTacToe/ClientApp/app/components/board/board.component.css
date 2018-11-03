@@ -1,6 +1,6 @@
 ﻿.board_table {
     padding: 64px 16px;
-    background-color: #DCD3B2;
+    background-color: #398689;
 }
 
 .board {
@@ -8,8 +8,8 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    background-color: #DCD3B2;
-    color: #fff;
+    background-color: #398689;
+    color: #D9BB93;
     height: 100%;
     padding: 0;
     margin: 0;
@@ -19,4 +19,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.enabled {
+    background-color: #D8FCE4 !important;
+    color: #78BE97;
+}
+
+cell.enabled:hover {
+    background-color: #78BE97;
+    color: #fff;
+    cursor: pointer;
 }

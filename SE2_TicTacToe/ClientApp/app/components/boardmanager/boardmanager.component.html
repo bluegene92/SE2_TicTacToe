@@ -1,6 +1,5 @@
 ﻿<div>
     <div class="gameStatus">
-
         <div class="row">
             <p class="boardStatus col-sm-6">
 
@@ -13,6 +12,7 @@
                 largeSide:      {{referee.largeSide}}       <br />
                 gameMode:       {{gameMode}}                <br />
                 limitDepth:     {{limitDepth}}              <br />
+                start:          {{board.enableBoard}}
 
             </p>
 
@@ -23,8 +23,9 @@
                 Player2:        {{player2}}                 <br />
                 <br />
 
+                Player1:        {{firstPlayer}}             <br />
                 Player's Turn:  {{playerTurn}}              <br />
-                winner:         {{winner}}                  <br />
+                Winner:         {{winner}}                  <br />
 
             </p>
         </div>
@@ -65,13 +66,22 @@
             <div class="game-mode col-sm-6">
                 <form>
                     <div>
+                        <label>First player?</label>
+                        <input type="checkbox"
+                               name="firstPlayer"
+                               value="HVA"
+                               [checked]="firstPlayer"
+                               (click)="toggleFirstPlayer()"
+                               [(ngModel)]="firstPlayer" />
+                    </div>
+                    <div>
                         <label>Limit depth</label>
                         <input type="checkbox"
                                name="depth"
                                value="HVA"
                                [checked]="limitDepth"
                                (click)="toggleLimitDepth()"
-                               [(ngModel)]="limitDepth"/>
+                               [(ngModel)]="limitDepth" />
                     </div>
                     <div>
                         <label>Human vs. AI</label>
@@ -95,18 +105,21 @@
 
     </div>
 
-
-
     <!--The Board-->
     <board [width]="width"
            [height]="height"
            (notifyCellSelectedPosition)='onNotifySelectedCellPosition($event)'>
     </board>
 
+    <button class="start-game"
+            (click)="startGame()">
+        Start
+    </button>
     <button class="new-game"
             (click)="newGame()">
         New Game
     </button>
+
 
     <div class="winning-condition-tables row">
 
@@ -146,13 +159,4 @@
             </div>
         </div>
     </div> <!--end winning-condition-tables-->
-
-    <!--<div class="winning-condition-tables row">
-        <div class="text-center">
-            <h4>All</h4>
-            <ul>
-                <li *ngFor="let aw of allWinningConditions">{{aw}}</li>
-            </ul>
-        </div>
-    </div>-->
 </div>

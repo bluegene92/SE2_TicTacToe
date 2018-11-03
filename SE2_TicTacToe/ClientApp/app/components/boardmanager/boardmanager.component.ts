@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { BoardComponent } from './../board/board.component';
 import { BoardConfigurator } from './boardconfigurator';
 import { Referee } from './../referee/referee.component';
-import { BoardDimension } from './../board/board.state';
+import { BoardDimension, RESULT } from './../board/board.state';
 import { GameMode } from './../gamemanager/gamemode.state';
 import { AlphaBetaPruning } from './../ai/alphabeta';
 import { WinningSetGenerator } from './../referee/winning-set-generator.service';
@@ -26,11 +26,8 @@ export class BoardManagerComponent implements OnInit {
 	player1:	string = Player.X;
 	player2:	string = Player.O;
 	winner:		string = Player.EMPTY;
-	playerTurn: string = Player.X;		// to be change later
-
-	//time = new Observable(observer => {
-	//	setInterval(() => observer.next(new Date().toString()), 1000)
-	//})
+	playerTurn: string = Player.X;
+	firstPlayer: boolean = true;	
 
 	winningRows:					any[][] = []
 	winningColumns:					any[][] = []
@@ -67,7 +64,13 @@ export class BoardManagerComponent implements OnInit {
 	newGame() {
 		this.board.resetBoard();
 		this.updateBoardDimension();
+		this.updateTotalCells();
 		this.winner = Player.EMPTY;
+		this.board.enableBoard = false;
+	}
+
+	startGame() {
+		this.board.enableBoard = true;
 	}
 
 	updateTotalCells() {
@@ -125,27 +128,18 @@ export class BoardManagerComponent implements OnInit {
 	 */
 	onNotifySelectedCellPosition(position: number) {
 		if (this.gameMode == GameMode.HUMAN_VS_AI) {
-			this.board.selectCell(position, Player.X);
-			for (let winSet of this.allWinningConditions) {
-				for (let i = 0; i < winSet.length; i++) {
-					if (winSet[i] == position) {
-						winSet[i] = Player.X;
-					}
-				} 
-			}
+			this.selectCellAndUpdateWinningConditions(position, Player.X)
+			
 			let bestMovePosition = this.alphabeta
 				.runAlgorithm(this.board, this.allWinningConditions);
 
-			this.board.selectCell(bestMovePosition, Player.O)
 
-			console.log(`bestMove=${bestMovePosition}`);
-			for (let winSet of this.allWinningConditions) {
-				for (let i = 0; i < winSet.length; i++) {
-					if (winSet[i] == bestMovePosition) {
-						winSet[i] = Player.O;
-					}
-				}
-			}
+
+			// delay 3 secs
+			//setInterval(() => { this.selectCellAndUpdateWinningConditions(bestMovePosition, Player.O) }, 3000)
+
+
+			this.selectCellAndUpdateWinningConditions(bestMovePosition, Player.O)
 		}
 
 		if (this.gameMode == GameMode.AI_VS_AI) {
@@ -153,18 +147,52 @@ export class BoardManagerComponent implements OnInit {
 
 		}
 
-		//console.log(this.allWinningConditions)
 	}
 
-	checkWinner(winSet: any[], player: string) {
-		let win = true
-		for (let i = 0; i < winSet.length; i++) {
-			if (winSet[i] !== player) win = false
+	selectCellAndUpdateWinningConditions(position: number, player: string) {
+		this.board.selectCell(position, player);
+		this.updateWinningConditions(position, player);
+		if (this.checkWinner(player)) {
+			this.winner = player;
 		}
-		return win ? player : ""
+		if (this.board.isEmpty() &&
+			!this.checkWinner(Player.X) &&
+			!this.checkWinner(Player.O)) {
+			this.winner = RESULT.DRAW
+		}
+	}
+
+	updateWinningConditions(position: number, player: string) {
+		for (let winSet of this.allWinningConditions) {
+			for (let i = 0; i < winSet.length; i++) {
+				if (winSet[i] == position) {
+					winSet[i] = player;
+				}
+			}
+		}
+	}
+
+	checkWinner(player: string) {
+		let win = false
+		for (let winSet of this.allWinningConditions) {
+			let count = 0;
+			if (!win)
+				for (let i = 0; i < winSet.length; i++) {
+					if (winSet[i] == player) count++
+					if (count == winSet.length) win = true
+			} else {
+				break;
+			}
+		}
+		return win ? true : false
 	}
 
 	toggleLimitDepth() {
 		this.limitDepth = (this.limitDepth) ? false: true
+	}
+
+	toggleFirstPlayer() {
+		this.firstPlayer = (this.firstPlayer) ? false : true
+		this.playerTurn = (this.firstPlayer) ? Player.X : Player.O
 	}
 }
