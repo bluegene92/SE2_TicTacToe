@@ -8,7 +8,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    background-color: #398689;
     color: #D9BB93;
     height: 100%;
     padding: 0;
@@ -22,12 +21,17 @@
 }
 
 .enabled {
-    background-color: #D8FCE4 !important;
+    background-color: #E9F1DF;
     color: #78BE97;
+    border-radius: 10px;
+}
+
+cell:hover {
+    color: #B1B2AE;
 }
 
 cell.enabled:hover {
-    background-color: #78BE97;
-    color: #fff;
+    background-color: #FFCB05;
+    color: #F23C50;
     cursor: pointer;
 }

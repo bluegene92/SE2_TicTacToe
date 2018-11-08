@@ -1,23 +1,26 @@
-﻿.gameStatus {
+﻿p {
+    color: #fff;
+}
+.gameStatus {
     margin: 0px;
     padding: 15px;
     background-color: #112F41;
     color: #fff;
-    font-size: 1em;
+    font-size: .8em;
 }
 
 .board_menu {
     background-color: #112F41;
     margin: 0px;
     padding: 15px;
-    font-size: 1.4em;
+    font-size: 1.2em;
     font-weight: bold;
     display: block;
 }
 
 .board_menu label {
     color: #fff;
-    width: 100px;
+    width: 200px;
 }
 
 .board_menu label input {
@@ -73,4 +76,8 @@ input[type="text"] {
 .start-game:hover {
     background-color: #59BD4D;
     cursor: pointer;
+}
+
+.time-count-down {
+    color: #fff;
 }

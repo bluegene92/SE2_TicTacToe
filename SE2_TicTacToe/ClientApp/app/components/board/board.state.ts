@@ -13,12 +13,17 @@ class BoardShape {
 	static SHAPE_LANDSCAPE = "LANDSCAPE"
 }
 
-class RESULT {
+class Result {
 	static DRAW = "DRAW"
+}
+
+class Threshold {
+	static DEFAULT_TIME = 20
 }
 
 export {
 	BoardDimension,
 	BoardShape,
-	RESULT
+	Result,
+	Threshold
 }

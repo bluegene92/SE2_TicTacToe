@@ -35,7 +35,7 @@
 
         <div class="row">
             <div class="form-group col-sm-6">
-                <div>
+                <div class="inputField">
                     <label>width:</label>
                     <input [(ngModel)]="width"
                            placeholder="{{width}}"
@@ -44,7 +44,7 @@
                            maxlength="2"
                            size="1">
                 </div>
-                <div>
+                <div class="inputField">
                     <label>height:</label>
                     <input [(ngModel)]="height"
                            placeholder="{{height}}"
@@ -53,13 +53,17 @@
                            maxlength="2"
                            size="1" />
                 </div>
-                <div>
-                    <label>Timer (sec):</label>
-                    <input [(ngModel)]="timer"
-                           placeholder="{{timer}}"
+                <div class="inputField">
+                    <label>Threshold Time (sec):</label>
+                    <input [(ngModel)]="thresholdTime"
+                           placeholder="{{thresholdTime}}"
                            type="text"
                            maxlength="2"
                            size="1" />
+                </div>
+                <div class="inputField">
+                    <label>Timer:</label>
+                    <span class="time-count-down">{{timeCountDown}}</span>
                 </div>
             </div>
 

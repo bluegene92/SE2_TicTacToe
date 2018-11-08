@@ -1,9 +1,9 @@
 ﻿import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { BoardComponent } from './../board/board.component';
 import { BoardConfigurator } from './boardconfigurator';
 import { Referee } from './../referee/referee.component';
-import { BoardDimension, RESULT } from './../board/board.state';
+import { BoardDimension, Result, Threshold } from './../board/board.state';
 import { GameMode } from './../gamemanager/gamemode.state';
 import { AlphaBetaPruning } from './../ai/alphabeta';
 import { WinningSetGenerator } from './../referee/winning-set-generator.service';
@@ -18,10 +18,14 @@ import { Player } from './../player/player.model';
 export class BoardManagerComponent implements OnInit {
 	@ViewChild(BoardComponent) board: any;
 
-	width:		number = BoardDimension.DEFAULT_WIDTH;
-	height: number = BoardDimension.DEFAULT_HEIGHT;
-	timer: number = 20;
+	private timerSubscription: Subscription = new Subscription()
+	private width:		number = BoardDimension.DEFAULT_WIDTH;
+	private height: number = BoardDimension.DEFAULT_HEIGHT;
+	private thresholdTime: number = Threshold.DEFAULT_TIME;
+	private timeCountDown: number = 0;
+	ticks: number = 0;
 	totalCells: number = this.width * this.height;
+
 
 	player1:	string = Player.X;
 	player2:	string = Player.O;
@@ -52,13 +56,13 @@ export class BoardManagerComponent implements OnInit {
 
 	ngOnInit() {
 		this.initializeBoard()
-		this.updateTotalCells()
-		this.updateBoardDimension()
 	}
 
 	initializeBoard() {
 		for (let i = 0; i < this.width; i++) {  this.board.widthArray[i] = i; }
-		for (let i = 0; i < this.height; i++) { this.board.heightArray[i] = i;}
+		for (let i = 0; i < this.height; i++) { this.board.heightArray[i] = i; }
+		this.updateTotalCells()
+		this.updateBoardDimension()
 	}
 
 	newGame() {
@@ -67,14 +71,12 @@ export class BoardManagerComponent implements OnInit {
 		this.updateTotalCells();
 		this.winner = Player.EMPTY;
 		this.board.enableBoard = false;
+		this.resetCountdownTimer();
 	}
 
 	startGame() {
 		this.board.enableBoard = true;
-	}
-
-	updateTotalCells() {
-		this.totalCells = this.width * this.height;
+		this.startCountdownTimer();
 	}
 
 	onChangeBoardWidth(width: number) {
@@ -91,6 +93,10 @@ export class BoardManagerComponent implements OnInit {
 		this.board.heightArray =
 			this.boardConfigurator.changeBoardHeight(height)
 		this.board.initializeBoard()
+	}
+
+	updateTotalCells() {
+		this.totalCells = this.width * this.height;
 	}
 
 	updateBoardDimension() {
@@ -152,13 +158,15 @@ export class BoardManagerComponent implements OnInit {
 	selectCellAndUpdateWinningConditions(position: number, player: string) {
 		this.board.selectCell(position, player);
 		this.updateWinningConditions(position, player);
-		if (this.checkWinner(player)) {
+
+		if (this.isWinner(player)) {
 			this.winner = player;
 		}
+
 		if (this.board.isEmpty() &&
-			!this.checkWinner(Player.X) &&
-			!this.checkWinner(Player.O)) {
-			this.winner = RESULT.DRAW
+			!this.isWinner(Player.X) &&
+			!this.isWinner(Player.O)) {
+			this.winner = Result.DRAW
 		}
 	}
 
@@ -172,27 +180,51 @@ export class BoardManagerComponent implements OnInit {
 		}
 	}
 
-	checkWinner(player: string) {
+	isWinner(player: string): boolean {
 		let win = false
 		for (let winSet of this.allWinningConditions) {
 			let count = 0;
-			if (!win)
+			if (!win) {
 				for (let i = 0; i < winSet.length; i++) {
 					if (winSet[i] == player) count++
 					if (count == winSet.length) win = true
-			} else {
+				}
+			}
+			else {
 				break;
 			}
 		}
 		return win ? true : false
 	}
 
+	startCountdownTimer() {
+		this.timeCountDown = this.thresholdTime;
+		let timeTicker = Observable.timer(0, 1000)
+		this.timerSubscription = timeTicker
+			.subscribe((tickCount: number) => this.updateTick(tickCount))
+	}
+
+	updateTick(tickCount: number) {
+		let ticks = tickCount;
+		if (this.timeCountDown > 0) {
+			this.timeCountDown = this.thresholdTime - ticks;
+		} else {
+			this.resetCountdownTimer();
+		}
+	}
+
+	resetCountdownTimer() {
+		this.thresholdTime = Threshold.DEFAULT_TIME;
+		this.timeCountDown = this.thresholdTime;
+		this.timerSubscription.unsubscribe();
+	}
+
 	toggleLimitDepth() {
-		this.limitDepth = (this.limitDepth) ? false: true
+		this.limitDepth = (this.limitDepth) ? false : true;
 	}
 
 	toggleFirstPlayer() {
-		this.firstPlayer = (this.firstPlayer) ? false : true
-		this.playerTurn = (this.firstPlayer) ? Player.X : Player.O
+		this.firstPlayer = (this.firstPlayer) ? false : true;
+		this.playerTurn = (this.firstPlayer) ? Player.X : Player.O;
 	}
 }
