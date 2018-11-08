@@ -13,9 +13,9 @@ export class AlphaBetaPruning {
 	ngOnInit() {
 	}
 
-	runAlgorithm(board: BoardComponent, allWinningConditions: any[][]) {
+	runAlgorithm(board: BoardComponent, player: string, allWinningConditions: any[][]) {
 		this.allWinningConditions = allWinningConditions
-		this.findBestMove(board, Player.O, 0)
+		this.findBestMove(board, player, 0)
 		return this.bestPosition;
 	}
 
@@ -29,18 +29,15 @@ export class AlphaBetaPruning {
 					alpha: number,
 					beta: number) {
 
-
 		let availableCells = board.getAvailableCells();
 
-		if (this.checkWinner(Player.X)) { return 10; }
-		else if (this.checkWinner(Player.O)) { return -10; }
+		if (this.isWinner(Player.X)) { return 10; }
+		else if (this.isWinner(Player.O)) { return -10; }
 		else if (board.isEmpty()) {	return 0; }
 
 		if (player == Player.X) {
 			for (let i = 0; i < availableCells.length; i++) {
 				let availablePosition = availableCells[i];
-
-				//select a cell and update winning list
 				board.selectCell(Number(availablePosition), Player.X)
 
 				// holds the list of indexes for undo later
@@ -57,11 +54,10 @@ export class AlphaBetaPruning {
 					}
 				}
 
-				let score: any = this.alphaBetaPruning(board, Player.O, depth+1, alpha, beta)
+				let score: any = this.alphaBetaPruning(board, Player.O, depth + 1, alpha, beta)
 
-				//undo move
-				//board[Number(availablePosition)] = availablePosition
-				board.undoCell(Number(availablePosition), availablePosition)
+				board.undoCell(Number(availablePosition), availablePosition);
+
 				for (let i = 0; i < undoList.length; i++) {
 					let u = undoList[i]
 					let yC = u[0]
@@ -80,12 +76,11 @@ export class AlphaBetaPruning {
 					return alpha;
 				}
 
-			} // end for
+			} 
 			return alpha
 		} else {  // Player.O
 			for (let i = 0; i < availableCells.length; i++) {
 				let availablePosition = availableCells[i];
-				//board[Number(availablePosition)] = Player.O;
 				board.selectCell(Number(availablePosition), Player.O)
 
 				// holds the list of indexes for undo later
@@ -103,8 +98,7 @@ export class AlphaBetaPruning {
 				}
 				let score: any = this.alphaBetaPruning(board, Player.X, depth + 1, alpha, beta)
 
-				//undo move
-				//board[Number(availablePosition)] = availablePosition
+
 				board.undoCell(Number(availablePosition), availablePosition)
 				for (let i = 0; i < undoList.length; i++) {
 					let u = undoList[i]
@@ -125,13 +119,10 @@ export class AlphaBetaPruning {
 		}
 	}
 
-	checkWinner(player: string): boolean {
+	isWinner(player: string): boolean {
 		let win = false
 		for (let winSet of this.allWinningConditions) {
 			let playerCount = 0;
-			/**
-			 * If there's no win yet, continue to check the list.
-			 */
 			if (!win) {
 				for (let i = 0; i < winSet.length; i++) {
 					if (winSet[i] == player) playerCount++

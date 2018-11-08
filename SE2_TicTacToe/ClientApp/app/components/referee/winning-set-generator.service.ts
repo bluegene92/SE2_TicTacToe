@@ -12,10 +12,12 @@ import { BoardShape, BoardDimension } from './../board/board.state';
  * */
 @Injectable()
 export class WinningSetGenerator {
-	endBlock: number = 0;
-	boardShape: string = BoardShape.SHAPE_SQUARE
-	width: number = BoardDimension.DEFAULT_WIDTH;
-	height: number = BoardDimension.DEFAULT_HEIGHT;
+
+	private endBlock: number = 0;
+	private boardShape: string = BoardShape.SHAPE_SQUARE
+	private width: number = BoardDimension.DEFAULT_WIDTH;
+	private height: number = BoardDimension.DEFAULT_HEIGHT;
+
 	generateWinningColumnList(width: number, height: number) {
 		this.initializeBoardConfiguration(width, height);
 		let winningColumnList = []

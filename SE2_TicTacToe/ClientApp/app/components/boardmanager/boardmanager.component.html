@@ -19,12 +19,12 @@
             <p class="playerStatus col-sm-6">
 
                 <b>Player Status</b>                        <br />
-                Player1:        {{player1}}                 <br />
-                Player2:        {{player2}}                 <br />
+                Human:        {{player1}}                 <br />
+                AI:           {{player2}}                 <br />
                 <br />
 
-                Player1:        {{firstPlayer}}             <br />
-                Player's Turn:  {{playerTurn}}              <br />
+                User go first:  {{isUserFirstPlayer}}             <br />
+                Player's Turn:  {{currentPlayerTurn}}              <br />
                 Winner:         {{winner}}                  <br />
 
             </p>
@@ -74,9 +74,9 @@
                         <input type="checkbox"
                                name="firstPlayer"
                                value="HVA"
-                               [checked]="firstPlayer"
+                               [checked]="isUserFirstPlayer"
                                (click)="toggleFirstPlayer()"
-                               [(ngModel)]="firstPlayer" />
+                               [(ngModel)]="isUserFirstPlayer" />
                     </div>
                     <div>
                         <label>Limit depth</label>
@@ -109,7 +109,11 @@
 
     </div>
 
-    <!--The Board-->
+    <div class="status-bar">
+        {{statusBar}}
+    </div>
+
+
     <board [width]="width"
            [height]="height"
            (notifyCellSelectedPosition)='onNotifySelectedCellPosition($event)'>

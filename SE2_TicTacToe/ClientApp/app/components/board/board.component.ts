@@ -12,19 +12,17 @@ import { Player } from './../player/player.model';
 })
 export class BoardComponent {
 
-	widthArray:			number[] = [];
-	heightArray:		number[] = [];
+	private widthArray:			number[] = [];
+	private heightArray:		number[] = [];
+	private boardShape = BoardShape.SHAPE_SQUARE;
 	@Input() width:		number = BoardDimension.DEFAULT_WIDTH;
 	@Input() height:	number = BoardDimension.DEFAULT_HEIGHT;
 	@Input() enableBoard:	boolean = false;
+	@Output() notifyCellSelectedPosition: EventEmitter<number>
+					= new EventEmitter<number>(); 
 
-	@Output() notifyCellSelectedPosition: EventEmitter<number> =
-						new EventEmitter<number>(); 
-
-
-	boardShape = BoardShape.SHAPE_SQUARE;
-	cells = Array(this.width * this.height).fill(null);
-	cellsCoordinates = Array(this.width * this.height).fill(null);
+	private cells = Array(this.width * this.height).fill(null);
+	private cellsCoordinates = Array(this.width * this.height).fill(null);
 
 	constructor() { }
 
@@ -87,6 +85,6 @@ export class BoardComponent {
 
 	isEmpty(): boolean {
 		let availableCells = this.getAvailableCells()
-		return (availableCells.length == 0) ? true : false
+		return (availableCells.length == 0) ? true : false;
 	}
 }

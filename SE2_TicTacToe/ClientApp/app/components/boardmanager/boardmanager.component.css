@@ -1,7 +1,4 @@
-﻿p {
-    color: #fff;
-}
-.gameStatus {
+﻿.gameStatus {
     margin: 0px;
     padding: 15px;
     background-color: #112F41;
@@ -80,4 +77,23 @@ input[type="text"] {
 
 .time-count-down {
     color: #fff;
+}
+
+span.time-count-down {
+    text-align: center;
+    width: 40px;
+    display: inline-block;
+}
+
+.status-bar {
+    background-color: #10202B;
+    color: #fff;
+    border: 0px;
+    font-family: 'Dosis', Helvetica, sans-serif;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 0px;
+    padding: 15px;
+    width: 100%;
+    text-align: center;
 }

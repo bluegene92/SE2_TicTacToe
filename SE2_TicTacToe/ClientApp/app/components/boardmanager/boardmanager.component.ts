@@ -21,30 +21,31 @@ export class BoardManagerComponent implements OnInit {
 	private timerSubscription: Subscription = new Subscription()
 	private width:		number = BoardDimension.DEFAULT_WIDTH;
 	private height: number = BoardDimension.DEFAULT_HEIGHT;
+	private totalCells: number = this.width * this.height;
+
+
+	private player1:	string = Player.X;
+	private player2:	string = Player.O;
+	private winner:		string = Player.EMPTY;
+	private currentPlayerTurn: string = Player.X;
+	private isUserFirstPlayer: boolean = true;	
+
+	private winningRows:					any[][] = []
+	private winningColumns:					any[][] = []
+	private winningDiagonalDowns:			any[][] = []
+	private winningDiagonalUps:				any[][] = []
+	private allWinningConditions:			any[][] = []
+
+	private gameMode: string = GameMode.HUMAN_VS_AI;
+	private isLimitedDepth: boolean = false
+
 	private thresholdTime: number = Threshold.DEFAULT_TIME;
 	private timeCountDown: number = 0;
-	ticks: number = 0;
-	totalCells: number = this.width * this.height;
+	private statusBar: string = "Select [Start] to play"
 
-
-	player1:	string = Player.X;
-	player2:	string = Player.O;
-	winner:		string = Player.EMPTY;
-	playerTurn: string = Player.X;
-	firstPlayer: boolean = true;	
-
-	winningRows:					any[][] = []
-	winningColumns:					any[][] = []
-	winningDiagonalDowns:			any[][] = []
-	winningDiagonalUps:				any[][] = []
-	allWinningConditions:			any[][] = []
-
-	gameMode: string = GameMode.HUMAN_VS_AI;
-	limitDepth: boolean = false
-
-	boardConfigurator: BoardConfigurator
-	referee: Referee
-	alphabeta: AlphaBetaPruning
+	private boardConfigurator: BoardConfigurator
+	private referee: Referee
+	private alphabeta: AlphaBetaPruning
 
 	constructor(boardConfigurator: BoardConfigurator,
 		referee: Referee,
@@ -65,6 +66,19 @@ export class BoardManagerComponent implements OnInit {
 		this.updateBoardDimension()
 	}
 
+	updateTotalCells() {
+		this.totalCells = this.width * this.height;
+	}
+
+	updateBoardDimension() {
+		this.board.width = this.width;
+		this.board.height = this.height;
+		this.winner = Player.EMPTY;
+		this.referee.updateBoardDimension(this.width, this.height);
+		this.referee.createAllWinningRow();
+		this.getWinningConditions();
+	}
+
 	newGame() {
 		this.board.resetBoard();
 		this.updateBoardDimension();
@@ -75,8 +89,83 @@ export class BoardManagerComponent implements OnInit {
 	}
 
 	startGame() {
-		this.board.enableBoard = true;
+		this.enableBoard();
+		if (!this.isUserFirstPlayer) {
+			this.aiMakeMove();
+		}
 		this.startCountdownTimer();
+	}
+
+	enableBoard() {
+		this.board.enableBoard = true;
+	}
+
+	disableBoard() {
+		this.board.enableBoard = false;
+	}
+
+	aiMakeMove() {
+		let bestMovePosition = this.alphabeta
+			.runAlgorithm(this.board, Player.O, this.allWinningConditions);
+
+		this.selectCellAndUpdateWinningConditions(bestMovePosition, Player.O)
+		this.resetCountdownTimer()
+
+		if (!this.isWinner(Player.O) && !this.isGameDraw()) {
+			this.startCountdownTimer()
+		}
+	}
+
+	userMakeMove(position: number) {
+		this.selectCellAndUpdateWinningConditions(position, Player.X);
+		this.resetCountdownTimer()
+	}
+
+
+	/**
+	 * This function runs everytime the user select a position.
+	 * It retrieve data from the event emitter in BoardComponent.
+	 *
+	 * @param position
+	 */
+	onNotifySelectedCellPosition(position: number) {
+		if (this.gameMode == GameMode.HUMAN_VS_AI) {
+			this.userMakeMove(position);
+			this.aiMakeMove()
+		}
+
+		if (this.gameMode == GameMode.AI_VS_AI) {
+
+
+		}
+
+	}
+
+	selectCellAndUpdateWinningConditions(position: number, player: string) {
+
+		this.board.selectCell(position, player);
+		this.updateWinningConditions(position, player);
+
+		if (this.isWinner(player)) {
+			this.winner = player;
+			this.resetCountdownTimer();
+			this.disableBoard();
+			this.statusBar = `${this.winner} win!!!`;
+		}
+
+		if (this.isGameDraw()) {
+			this.winner = Result.DRAW;
+			this.resetCountdownTimer();
+			this.disableBoard()
+			this.statusBar = `Game end in a ${Result.DRAW}`;
+		}
+
+	}
+
+	isGameDraw(): boolean {
+		return (this.board.isEmpty() &&
+			!this.isWinner(Player.X) &&
+			!this.isWinner(Player.O))
 	}
 
 	onChangeBoardWidth(width: number) {
@@ -95,19 +184,6 @@ export class BoardManagerComponent implements OnInit {
 		this.board.initializeBoard()
 	}
 
-	updateTotalCells() {
-		this.totalCells = this.width * this.height;
-	}
-
-	updateBoardDimension() {
-		this.board.width = this.width;
-		this.board.height = this.height;
-		this.winner = Player.EMPTY;
-		this.referee.updateBoardDimension(this.width, this.height);
-		this.referee.createAllWinningRow();
-		this.getWinningConditions();
-	}
-
 	getWinningConditions() {
 		this.winningColumns = this.referee.winningColumnList
 		this.winningRows = this.referee.winningRowList
@@ -123,51 +199,6 @@ export class BoardManagerComponent implements OnInit {
 				.concat(this.winningColumns)
 				.concat(this.winningDiagonalDowns)
 				.concat(this.winningDiagonalUps)
-	}
-
-
-	/**
-	 * This function runs everytime the user select a position.
-	 * It retrieve data from the event emitter
-	 *
-	 * @param position
-	 */
-	onNotifySelectedCellPosition(position: number) {
-		if (this.gameMode == GameMode.HUMAN_VS_AI) {
-			this.selectCellAndUpdateWinningConditions(position, Player.X)
-			
-			let bestMovePosition = this.alphabeta
-				.runAlgorithm(this.board, this.allWinningConditions);
-
-
-
-			// delay 3 secs
-			//setInterval(() => { this.selectCellAndUpdateWinningConditions(bestMovePosition, Player.O) }, 3000)
-
-
-			this.selectCellAndUpdateWinningConditions(bestMovePosition, Player.O)
-		}
-
-		if (this.gameMode == GameMode.AI_VS_AI) {
-
-
-		}
-
-	}
-
-	selectCellAndUpdateWinningConditions(position: number, player: string) {
-		this.board.selectCell(position, player);
-		this.updateWinningConditions(position, player);
-
-		if (this.isWinner(player)) {
-			this.winner = player;
-		}
-
-		if (this.board.isEmpty() &&
-			!this.isWinner(Player.X) &&
-			!this.isWinner(Player.O)) {
-			this.winner = Result.DRAW
-		}
 	}
 
 	updateWinningConditions(position: number, player: string) {
@@ -208,23 +239,33 @@ export class BoardManagerComponent implements OnInit {
 		let ticks = tickCount;
 		if (this.timeCountDown > 0) {
 			this.timeCountDown = this.thresholdTime - ticks;
-		} else {
+		}
+
+		if (this.isOutOfTime(this.timeCountDown)) {
+			this.winner = (this.currentPlayerTurn == Player.X) ? Player.O : Player.X;
 			this.resetCountdownTimer();
 		}
 	}
 
+	isOutOfTime(time: number): boolean {
+		return time <= 0;
+	}
+
 	resetCountdownTimer() {
-		this.thresholdTime = Threshold.DEFAULT_TIME;
 		this.timeCountDown = this.thresholdTime;
 		this.timerSubscription.unsubscribe();
 	}
 
 	toggleLimitDepth() {
-		this.limitDepth = (this.limitDepth) ? false : true;
+		this.isLimitedDepth = (this.isLimitedDepth) ? false : true;
 	}
 
 	toggleFirstPlayer() {
-		this.firstPlayer = (this.firstPlayer) ? false : true;
-		this.playerTurn = (this.firstPlayer) ? Player.X : Player.O;
+		this.isUserFirstPlayer = (this.isUserFirstPlayer) ? false : true;
+		this.currentPlayerTurn = (this.isUserFirstPlayer) ? Player.X : Player.O;
+	}
+
+	switchCurrentPlayer() {
+		this.currentPlayerTurn = (this.currentPlayerTurn == Player.X) ? Player.O : Player.X;
 	}
 }
